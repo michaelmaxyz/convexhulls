@@ -1,6 +1,6 @@
 ArrayList<Circle> circles;
 ArrayList<Circle> march;
-int n = 15;
+int n = 55;
 float G = 6.67e-3;
 float dt = .1;
 float soft = 3e2;
@@ -25,11 +25,9 @@ void draw() {
    int j = 0;
    
    for (Circle c : circles) {
+     //reset forces
      c.fx = 0;
      c.fy = 0;
-   }
-   
-   for (Circle c : circles) {
      for (Circle c2: circles) {
         if (i < j) {
           float distx = c.x - c2.x;
@@ -50,31 +48,25 @@ void draw() {
                 
         j++;
      }
+     
+     c.ax = c.fx / c.mass;
+     c.ay = c.fy / c.mass;
+     c.vx += c.ax * dt;
+     c.vy += c.ay * dt;
+     c.x += c.vx * dt;
+     c.y += c.vy * dt;
+     fill(0);
+     circle(c.x, c.y, 5);
+     
      i++;
    }
-   for (Circle c : circles) {
-      c.ax = c.fx / c.mass;
-      c.ay = c.fy / c.mass;
-      c.vx += c.ax * dt;
-      c.vy += c.ay * dt;
-      c.x += c.vx * dt;
-      c.y += c.vy * dt;
-      fill(0);
-      circle(c.x, c.y, 5);
-   }
+   
    march();
-   beginShape();
    for (int index = 1; index < march.size(); index++) {
       Circle last = march.get(index - 1);
       Circle curr = march.get(index);
       line(last.x, last.y, curr.x, curr.y);
    }
-   
-   
-   
-
-   endShape(CLOSE);
- 
 }
 
 boolean orientCCW(Circle p, Circle q, Circle r) {
@@ -96,18 +88,17 @@ void march() {
    
    march.add(circles.get(p));
    do {
+      //wrap around
       q = (p + 1) % n;
-      for (int i = 0; i < n; i++) {
+      
+      for (int i = 0; i < n; i++) 
         if (orientCCW(circles.get(p), circles.get(i), circles.get(q)))
           q = i;
-      }
       
       march.add(circles.get(q));
       p = q;
    } while (p != left);
-   
 }
-
 
 class Circle {
   float x;
